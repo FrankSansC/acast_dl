@@ -10,6 +10,7 @@
 
 import os
 import re
+import json
 import feedparser
 import urllib.request
 from datetime import datetime
@@ -17,6 +18,40 @@ from tqdm import tqdm
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, ID3NoHeaderError
 
+
+class CachedRSSFeed:
+    def __init__(self, cache_file="rss_cache.json"):
+        self.cache_file = cache_file
+        self._load_cache()
+
+    def _load_cache(self):
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, "r") as f:
+                self.cache = json.load(f)
+        else:
+            self.cache = {}
+
+    def _save_cache(self):
+        with open(self.cache_file, "w") as f:
+            json.dump(self.cache, f)
+
+    def fetch(self, url):
+        etag = self.cache.get(url, {}).get("etag")
+        modified = self.cache.get(url, {}).get("modified")
+
+        feed = feedparser.parse(url, etag=etag, modified=modified)
+
+        if feed.get("status") == 304:
+            print(f"Feed not modified")
+            return None
+
+        print(f"New episode(s) available!")
+        self.cache[url] = {
+            "etag": feed.get("etag"),
+            "modified": feed.get("modified"),
+        }
+        self._save_cache()
+        return feed
 
 class PodcastDownloader:
     def __init__(self, rss_url, output_dir="podcasts", max_episodes=None):
@@ -90,8 +125,13 @@ class PodcastDownloader:
                 os.remove(dest_path)
 
     def download(self):
-        os.makedirs(self.output_dir, exist_ok=True)
-        feed = feedparser.parse(self.rss_url)
+        rss = CachedRSSFeed()
+        feed = rss.fetch(self.rss_url)
+
+        if feed is None:
+            print("No new episodes.")
+            return
+
         entries = feed.entries
 
         if self.max_episodes is not None:
