@@ -16,7 +16,7 @@ import urllib.request
 from datetime import datetime
 from tqdm import tqdm
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, ID3NoHeaderError
+from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, WOAS, ID3NoHeaderError
 
 
 class CachedRSSFeed:
@@ -70,6 +70,7 @@ class PodcastDownloader:
         except ID3NoHeaderError:
             tags = ID3()
 
+        # See https://mutagen.readthedocs.io/en/latest/api/id3_frames.html#id3v2-3-4-frames
         tags.add(TIT2(encoding=3, text=metadata.get("title", "")))
         tags.add(TPE1(encoding=3, text=metadata.get("author", "")))
         tags.add(TALB(encoding=3, text=metadata.get("album", "")))
@@ -78,12 +79,15 @@ class PodcastDownloader:
         if "description" in metadata:
             tags.add(COMM(encoding=3, lang='fra', desc='desc', text=metadata.get("description", "")))
 
+        if "link" in metadata:
+            tags.add(WOAS(url=metadata["link"]))
+
         if image_url:
             try:
                 image_data = urllib.request.urlopen(image_url).read()
                 tags.add(APIC(
                     encoding=3,
-                    mime='image/jpeg',  # or 'image/png'
+                    mime='image/jpeg',
                     type=3,  # cover (front)
                     desc='Cover',
                     data=image_data
