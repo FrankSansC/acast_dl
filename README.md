@@ -54,8 +54,8 @@ TODO
 
 - [ ] Update this `README.md` file
 - [ ] add arguments
-  - [ ] `--rss-url` : podcast RSS URL
-  - [ ] `--max-episodes` => no, delete this option all together
+  - [x] `--rss-url` : podcast RSS URL
+  - [x] ~~`--max-episodes`~~ => no, delete this option all together
   - [ ] `--override` : override any existing podcast file
   - [ ] `--no-tag` : don't update MP3 ID3 tags
   - [ ] `--ignore-rss-cache` : ignore ETag

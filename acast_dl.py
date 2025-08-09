@@ -11,6 +11,7 @@
 import os
 import re
 import json
+import argparse
 import feedparser
 import urllib.request
 from datetime import datetime
@@ -55,10 +56,9 @@ class CachedRSSFeed:
 
 
 class PodcastDownloader:
-    def __init__(self, rss_url, output_dir="podcasts", max_episodes=None):
+    def __init__(self, rss_url, output_dir="podcasts"):
         self.rss_url = rss_url
         self.output_dir = output_dir
-        self.max_episodes = max_episodes
 
     def sanitize_filename(self, name):
         return re.sub(r'[\\/*?:"<>|]', "", name)
@@ -148,9 +148,6 @@ class PodcastDownloader:
 
         entries = feed.entries
 
-        if self.max_episodes is not None:
-            entries = entries[: self.max_episodes]
-
         os.makedirs(self.output_dir, exist_ok=True)
 
         for entry in entries:
@@ -191,6 +188,23 @@ class PodcastDownloader:
 
 
 if __name__ == "__main__":
-    rss_url = "https://feeds.acast.com/public/shows/encore-une-histoire"
-    downloader = PodcastDownloader(rss_url, output_dir="podcasts")
+    parser = argparse.ArgumentParser(
+        description="Download podcast episodes from an Acast RSS feed and embed metadata into MP3 files."
+    )
+    parser.add_argument(
+        "--rss-url",
+        required=True,
+        help="URL of the podcast RSS feed"
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="podcasts",
+        help="Directory where MP3 files will be saved (default: podcasts)"
+    )
+
+    args = parser.parse_args()
+
+    downloader = PodcastDownloader(
+        rss_url=args.rss_url,
+        output_dir=args.output_dir)
     downloader.download()
