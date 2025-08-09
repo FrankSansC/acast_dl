@@ -168,12 +168,19 @@ class PodcastDownloader:
             image_url = entry.get("image", {}).get("href", None)
             audio_url = self.get_audio_url(entry)
 
+            filename = f"{self.sanitize_filename(metadata.get("title", ""))}.mp3"
+            if filename == ".mp3":
+                if entry.acast_episodeid:
+                    print(f"No title found, use episode ID as filename")
+                    filename = f"{entry.acast_episodeid}.mp3"
+                else:
+                    print(f"No title and no episodeId, skip this episode")
+                    continue
+            file_path = os.path.join(self.output_dir, filename)
+
             if not audio_url:
                 print(f"Skipping '{title}' (no MP3 link found)")
                 continue
-
-            filename = f"{self.sanitize_filename(metadata.get("title", ""))}.mp3"
-            file_path = os.path.join(self.output_dir, filename)
 
             if not os.path.exists(file_path):
                 self.download_file(audio_url, file_path)
