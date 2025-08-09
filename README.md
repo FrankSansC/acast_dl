@@ -59,7 +59,7 @@ TODO
   - [ ] Add also ID3v1 tags ?
 - [~] Change podcast's filenames to something easier
   - [ ] Rename podcast's filenames to swap podcast story name and chapter
-- [x] Remove ETA from progressbar
+- [x] Remove ETA from progress bar
 - [x] Don't download the RSS XML each time
   - [ETag and Last-Modified Headers](https://feedparser.readthedocs.io/en/latest/http-etag/)
 
@@ -69,6 +69,16 @@ Here's a non-exhaustive list, in non-specific order, of similar projects to `aca
 
 - TODO
 
+# Legal Notice
+
+This project is an independent tool and is **not affiliated with, endorsed by, or connected to Acast** in any way.
+Acast is a registered trademark of its respective owner. All other trademarks and service marks are the property of their respective owners.
+
+All podcasts, audio files, images, descriptions, and related metadata retrieved using this tool remain the sole property of their respective creators and copyright holders. This tool is intended for personal, non-commercial use only.
+
+You are responsible for ensuring that your use of any downloaded content complies with applicable copyright laws and the terms of service of the source platform.
+
 # License
 
-[MIT License](./LICENSE)
+The source code of this project is released under the [MIT License](./LICENSE).
+This license applies **only** to the project’s code and does **not** extend to any media downloaded or processed with this tool.
