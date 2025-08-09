@@ -1,6 +1,11 @@
 # acast_dl.py
 
-The purpose of this script is to XXX
+The purpose of this script is to easily download podcast files from Acast for offline listening.
+
+## Limitations
+
+- this script is currently a wip and has been tested with only a very little set of podcast feeds
+- this script only support `.mp3` files
 
 ## AI usage
 
@@ -57,7 +62,7 @@ TODO
   - [ ] `--rss-cache-file` ? to override `.rss_cache.json`
 - [ ] Any other ID3v2 tags ?
   - [ ] Add also ID3v1 tags ?
-- [~] Change podcast's filenames to something easier
+- [ ] Change podcast's filenames to something that you can more easily sort
   - [ ] Rename podcast's filenames to swap podcast story name and chapter
 - [x] Remove ETA from progress bar
 - [x] Don't download the RSS XML each time
@@ -81,4 +86,5 @@ You are responsible for ensuring that your use of any downloaded content complie
 # License
 
 The source code of this project is released under the [MIT License](./LICENSE).
+
 This license applies **only** to the project’s code and does **not** extend to any media downloaded or processed with this tool.
