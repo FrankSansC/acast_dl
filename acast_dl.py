@@ -15,6 +15,8 @@ import urllib.request
 from datetime import datetime
 from tqdm import tqdm
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, ID3NoHeaderError
+
 
 class PodcastDownloader:
     def __init__(self, rss_url, output_dir="podcasts", max_episodes=None):
@@ -25,18 +27,36 @@ class PodcastDownloader:
     def sanitize_filename(self, name):
         return re.sub(r'[\\/*?:"<>|]', "", name)
 
-    def download_file(self, url, dest_path):
-        print(f"Downloading: {url}")
-        urllib.request.urlretrieve(url, dest_path)
-
-    def set_metadata(self, mp3_path, metadata):
+    def set_metadata(self, mp3_path, metadata, image_url=None):
         print(f"Tagging: {mp3_path}")
-        audio = MP3(mp3_path, ID3=EasyID3)
-        audio["title"] = metadata.get("title", "")
-        audio["artist"] = metadata.get("author", "")
-        audio["album"] = metadata.get("album", "")
-        audio["date"] = metadata.get("date", "")
-        audio.save()
+
+        try:
+            tags = ID3(mp3_path)
+        except ID3NoHeaderError:
+            tags = ID3()
+
+        tags.add(TIT2(encoding=3, text=metadata.get("title", "")))
+        tags.add(TPE1(encoding=3, text=metadata.get("author", "")))
+        tags.add(TALB(encoding=3, text=metadata.get("album", "")))
+        tags.add(TDRC(encoding=3, text=metadata.get("date", "")))
+
+        if "description" in metadata:
+            tags.add(COMM(encoding=3, lang='fra', desc='desc', text=metadata.get("description", "")))
+
+        if image_url:
+            try:
+                image_data = urllib.request.urlopen(image_url).read()
+                tags.add(APIC(
+                    encoding=3,
+                    mime='image/jpeg',  # or 'image/png'
+                    type=3,  # cover (front)
+                    desc='Cover',
+                    data=image_data
+                ))
+            except Exception as e:
+                print(f"Failed to download or embed image: {e}")
+
+        tags.save(mp3_path)
 
     def get_audio_url(self, entry):
         for link in entry.links:
@@ -84,6 +104,8 @@ class PodcastDownloader:
             date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
             str_date = date.strftime('%Y%m%d')
             author = entry.get("author", feed.feed.get("author", ""))
+            description = entry.get("summary", "")  # or "description"
+            image_url = entry.get("image", {}).get("href", None)
             audio_url = self.get_audio_url(entry)
 
             if not audio_url:
