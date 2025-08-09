@@ -53,6 +53,7 @@ class CachedRSSFeed:
         self._save_cache()
         return feed
 
+
 class PodcastDownloader:
     def __init__(self, rss_url, output_dir="podcasts", max_episodes=None):
         self.rss_url = rss_url
@@ -77,7 +78,14 @@ class PodcastDownloader:
         tags.add(TDRC(encoding=3, text=metadata.get("date", "")))
 
         if "description" in metadata:
-            tags.add(COMM(encoding=3, lang='fra', desc='desc', text=metadata.get("description", "")))
+            tags.add(
+                COMM(
+                    encoding=3,
+                    lang="fra",
+                    desc="desc",
+                    text=metadata.get("description", ""),
+                )
+            )
 
         if "link" in metadata:
             tags.add(WOAS(url=metadata["link"]))
@@ -85,13 +93,15 @@ class PodcastDownloader:
         if image_url:
             try:
                 image_data = urllib.request.urlopen(image_url).read()
-                tags.add(APIC(
-                    encoding=3,
-                    mime='image/jpeg',
-                    type=3,  # cover (front)
-                    desc='Cover',
-                    data=image_data
-                ))
+                tags.add(
+                    APIC(
+                        encoding=3,
+                        mime="image/jpeg",
+                        type=3,  # cover (front)
+                        desc="Cover",
+                        data=image_data,
+                    )
+                )
             except Exception as e:
                 print(f"Failed to download or embed image: {e}")
 
@@ -107,15 +117,15 @@ class PodcastDownloader:
         print(f"Downloading: {url}")
         try:
             with urllib.request.urlopen(url) as response:
-                total_size = int(response.getheader('Content-Length', 0))
+                total_size = int(response.getheader("Content-Length", 0))
                 block_size = 8192
-                with open(dest_path, 'wb') as out_file, tqdm(
+                with open(dest_path, "wb") as out_file, tqdm(
                     total=total_size,
-                    unit='B',
+                    unit="B",
                     unit_scale=True,
                     unit_divisor=1024,
                     bar_format="{desc} |{bar}| {percentage:3.0f}% {n_fmt}/{total_fmt}",
-                    initial=0
+                    initial=0,
                 ) as bar:
                     while True:
                         buffer = response.read(block_size)
@@ -139,13 +149,13 @@ class PodcastDownloader:
         entries = feed.entries
 
         if self.max_episodes is not None:
-            entries = entries[:self.max_episodes]
+            entries = entries[: self.max_episodes]
 
         os.makedirs(self.output_dir, exist_ok=True)
 
         for entry in entries:
-            date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
-            str_date = date.strftime('%Y%m%d')
+            date = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %Z")
+            str_date = date.strftime("%Y%m%d")
             metadata = {
                 "title": entry.title,
                 "author": entry.get("author", feed.feed.get("author", "")),
