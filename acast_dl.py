@@ -152,7 +152,7 @@ class PodcastDownloader:
                 print(f"Skipping '{title}' (no MP3 link found)")
                 continue
 
-            filename = f"{self.sanitize_filename(date)} - {self.sanitize_filename(title)}.mp3"
+            filename = f"{self.sanitize_filename(title)}.mp3"
             file_path = os.path.join(self.output_dir, filename)
 
             print(f"{filename}")
@@ -164,14 +164,15 @@ class PodcastDownloader:
                     "title": title,
                     "author": author,
                     "album": feed.feed.get("title", ""),
-                    "date": date,
+                    "date": str_date,
+                    "description": description,
                 }
-                self.set_metadata(file_path, metadata)
+                self.set_metadata(file_path, metadata, image_url)
             else:
                 print(f"Already exists: {file_path}")
 
 
 if __name__ == "__main__":
     rss_url = "https://feeds.acast.com/public/shows/encore-une-histoire"
-    downloader = PodcastDownloader(rss_url, output_dir="podcasts", max_episodes=5)
+    downloader = PodcastDownloader(rss_url, output_dir="podcasts")
     downloader.download()
