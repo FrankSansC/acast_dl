@@ -72,7 +72,8 @@ TODO
 
 Here's a non-exhaustive list, in non-specific order, of similar projects to `acast_dl` :
 
-- TODO
+- [acast-rss-downloader](https://github.com/duskmoon314/acast-rss-downloader)
+- [gocast](https://github.com/philippdrebes/gocast)
 
 # Legal Notice
 
