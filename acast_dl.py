@@ -144,11 +144,17 @@ class PodcastDownloader:
         os.makedirs(self.output_dir, exist_ok=True)
 
         for entry in entries:
-            title = entry.title
             date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
             str_date = date.strftime('%Y%m%d')
-            author = entry.get("author", feed.feed.get("author", ""))
-            description = entry.get("summary", "")  # or "description"
+            metadata = {
+                "title": entry.title,
+                "author": entry.get("author", feed.feed.get("author", "")),
+                "album": feed.feed.get("title", ""),
+                "date": str_date,
+                "description": entry.get("description", ""),
+                "link": entry.link,
+            }
+
             image_url = entry.get("image", {}).get("href", None)
             audio_url = self.get_audio_url(entry)
 
@@ -156,21 +162,12 @@ class PodcastDownloader:
                 print(f"Skipping '{title}' (no MP3 link found)")
                 continue
 
-            filename = f"{self.sanitize_filename(title)}.mp3"
+            filename = f"{self.sanitize_filename(metadata.get("title", ""))}.mp3"
             file_path = os.path.join(self.output_dir, filename)
-
-            print(f"{filename}")
 
             if not os.path.exists(file_path):
                 self.download_file(audio_url, file_path)
 
-                metadata = {
-                    "title": title,
-                    "author": author,
-                    "album": feed.feed.get("title", ""),
-                    "date": str_date,
-                    "description": description,
-                }
                 self.set_metadata(file_path, metadata, image_url)
             else:
                 print(f"Already exists: {file_path}")
