@@ -1,6 +1,8 @@
 # acast_dl.py
 
-The purpose of this script is to easily download podcast files from Acast for offline listening.
+The purpose of this script is to easily download podcast episodes from [Acast](https://www.acast.com/) for offline listening.
+
+It might also work for other podcast platforms as long as you can get a RSS feed URL.
 
 ## Limitations
 
@@ -15,7 +17,10 @@ This project is an excuse to see how good AI is at helping to write small tools 
 
 # Dependencies
 
-`acast_dl` relies on three dependencies :
+I try to keep the number of depencies as low as possible.
+
+Currently `acast_dl` relies on three dependencies :
+
 - [`feedparser`](https://github.com/kurtmckee/feedparser) : for retrieving and parsing the RSS XML feed
 - [`mutagen`](https://github.com/quodlibet/mutagen) : for updating ID3 MP3 tags
 - [`tqdm`](https://github.com/tqdm/tqdm) : to show a progress bar when downloading the files
@@ -39,7 +44,12 @@ It makes use of [PEP-723](https://peps.python.org/pep-0723/) that allows to add 
 When launched the first time you'll see `uv` downloading and installing the dependencies :
 
 ```
-TODO
+Prepared 4 packages in 759ms
+Installed 4 packages in 4ms
+ + feedparser==6.0.11
+ + mutagen==1.47.0
+ + sgmllib3k==1.0.0
+ + tqdm==4.67.1
 ```
 
 I got the inspiration to use `uv` thanks to this blog post : [Fun with uv and PEP 723](https://www.cottongeeks.com/articles/2025-06-24-fun-with-uv-and-pep-723) (related [hn post](https://news.ycombinator.com/item?id=44369388)).
