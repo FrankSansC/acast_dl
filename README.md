@@ -54,19 +54,11 @@ TODO
 
 - [ ] Update this `README.md` file
 - [ ] add arguments
-  - [x] `--rss-url` : podcast RSS URL
-  - [x] ~~`--max-episodes`~~ => no, delete this option all together
   - [ ] `--override` : override any existing podcast file
   - [ ] `--no-tag` : don't update MP3 ID3 tags
   - [ ] `--ignore-rss-cache` : ignore ETag
-  - [ ] `--rss-cache-file` ? to override `.rss_cache.json`
-- [ ] Any other ID3v2 tags ?
-  - [ ] Add also ID3v1 tags ?
-- [ ] Change podcast's filenames to something that you can more easily sort
-  - [ ] Rename podcast's filenames to swap podcast story name and chapter
-- [x] Remove ETA from progress bar
-- [x] Don't download the RSS XML each time
-  - [ETag and Last-Modified Headers](https://feedparser.readthedocs.io/en/latest/http-etag/)
+  - [ ] `--rss-cache-file` : to override `.rss_cache.json` (not sure about the usefulness of this one)
+  - [ ] `--max-download` : download only the latest / most recent X podcast episodes
 
 # Similar projects
 
