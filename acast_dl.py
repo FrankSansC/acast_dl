@@ -148,7 +148,8 @@ class PodcastDownloader:
 
         entries = feed.entries
 
-        os.makedirs(self.output_dir, exist_ok=True)
+        podcast_dir = f"{self.output_dir}/{feed.feed.get("title", "")}"
+        os.makedirs(podcast_dir, exist_ok=True)
 
         for entry in entries:
             date = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %Z")
@@ -173,7 +174,7 @@ class PodcastDownloader:
                 else:
                     print(f"No title and no episodeId, skip this episode")
                     continue
-            file_path = os.path.join(self.output_dir, filename)
+            file_path = os.path.join(podcast_dir, filename)
 
             if not audio_url:
                 print(f"Skipping '{title}' (no MP3 link found)")
