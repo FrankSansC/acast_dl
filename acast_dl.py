@@ -14,7 +14,7 @@ import json
 import argparse
 import feedparser
 import urllib.request
-from datetime import datetime
+from email.utils import parsedate_to_datetime
 from tqdm import tqdm
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, WOAS, ID3NoHeaderError
@@ -152,13 +152,17 @@ class PodcastDownloader:
         os.makedirs(podcast_dir, exist_ok=True)
 
         for entry in entries:
-            date = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %Z")
-            str_date = date.strftime("%Y%m%d")
+            published = entry.get("published", "")
+            try:
+                datetime = parsedate_to_datetime(published)
+                date = datetime.strftime("%F")
+            except Exception:
+                date = "unknown"
             metadata = {
                 "title": entry.title,
                 "author": entry.get("author", feed.feed.get("author", "")),
                 "album": feed.feed.get("title", ""),
-                "date": str_date,
+                "date": date,
                 "description": entry.get("description", ""),
                 "link": entry.link,
             }
