@@ -16,7 +16,6 @@ import feedparser
 import urllib.request
 from email.utils import parsedate_to_datetime
 from tqdm import tqdm
-from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, WOAS, ID3NoHeaderError
 
 
@@ -43,10 +42,10 @@ class CachedRSSFeed:
         feed = feedparser.parse(url, etag=etag, modified=modified)
 
         if feed.get("status") == 304:
-            print(f"Feed not modified")
+            print("Feed not modified")
             return None
 
-        print(f"New episode(s) available!")
+        print("New episode(s) available!")
         self.cache[url] = {
             "etag": feed.get("etag"),
             "modified": feed.get("modified"),
@@ -173,15 +172,15 @@ class PodcastDownloader:
             filename = f"{self.sanitize_filename(metadata.get("title", ""))}.mp3"
             if filename == ".mp3":
                 if entry.acast_episodeid:
-                    print(f"No title found, use episode ID as filename")
+                    print("No title found, use episode ID as filename")
                     filename = f"{entry.acast_episodeid}.mp3"
                 else:
-                    print(f"No title and no episodeId, skip this episode")
+                    print("No title and no episodeId, skip this episode")
                     continue
             file_path = os.path.join(podcast_dir, filename)
 
             if not audio_url:
-                print(f"Skipping '{title}' (no MP3 link found)")
+                print(f"Skipping '{metadata.get("link")}' (no MP3 link found)")
                 continue
 
             if not os.path.exists(file_path):
@@ -196,20 +195,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Download podcast episodes from an Acast RSS feed and embed metadata into MP3 files."
     )
-    parser.add_argument(
-        "--rss-url",
-        required=True,
-        help="URL of the podcast RSS feed"
-    )
+    parser.add_argument("--rss-url", required=True, help="URL of the podcast RSS feed")
     parser.add_argument(
         "--output-dir",
         default="podcasts",
-        help="Directory where MP3 files will be saved (default: podcasts)"
+        help="Directory where MP3 files will be saved (default: podcasts)",
     )
 
     args = parser.parse_args()
 
-    downloader = PodcastDownloader(
-        rss_url=args.rss_url,
-        output_dir=args.output_dir)
+    downloader = PodcastDownloader(rss_url=args.rss_url, output_dir=args.output_dir)
     downloader.download()
