@@ -13,7 +13,8 @@ import re
 import json
 import argparse
 import feedparser
-import urllib.request
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 from email.utils import parsedate_to_datetime
 from tqdm import tqdm
 from mutagen.id3 import ID3, APIC, COMM, TIT2, TPE1, TALB, TDRC, WOAS, ID3NoHeaderError
@@ -91,7 +92,7 @@ class PodcastDownloader:
 
         if image_url:
             try:
-                image_data = urllib.request.urlopen(image_url).read()
+                image_data = urlopen(image_url).read()
                 tags.add(
                     APIC(
                         encoding=3,
@@ -114,8 +115,17 @@ class PodcastDownloader:
 
     def download_file(self, url, dest_path):
         print(f"Downloading: {url}")
+
+        # Mimic wget's default user agent
+        user_agent = {"User-Agent": "Wget/1.25.0"}
+        req = Request(url, headers=user_agent)
+
         try:
-            with urllib.request.urlopen(url) as response:
+            with urlopen(req) as response:
+                if response.status != 200:
+                    print(f"Failed to download (HTTP {response.status})")
+                    return False
+
                 total_size = int(response.getheader("Content-Length", 0))
                 block_size = 8192
                 with open(dest_path, "wb") as out_file, tqdm(
@@ -132,10 +142,18 @@ class PodcastDownloader:
                             break
                         out_file.write(buffer)
                         bar.update(len(buffer))
+                return True
+
+        except HTTPError as e:
+            print(f"HTTP Error {e.code}")
+        except URLError as e:
+            print(f"URL Error: {e.reason}")
         except Exception as e:
             print(f"Download failed: {e}")
-            if os.path.exists(dest_path):
-                os.remove(dest_path)
+
+        if os.path.exists(dest_path):
+            os.remove(dest_path)
+        return False
 
     def download(self):
         rss = CachedRSSFeed()
@@ -184,9 +202,10 @@ class PodcastDownloader:
                 continue
 
             if not os.path.exists(file_path):
-                self.download_file(audio_url, file_path)
-
-                self.set_metadata(file_path, metadata, image_url)
+                if self.download_file(audio_url, file_path):
+                    self.set_metadata(file_path, metadata, image_url=image_url)
+                else:
+                    print(f"Skipping metadata for '{metadata.get("title", "")}' due to download failure.")
             else:
                 print(f"Already exists: {file_path}")
 
