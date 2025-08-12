@@ -56,9 +56,10 @@ class CachedRSSFeed:
 
 
 class PodcastDownloader:
-    def __init__(self, rss_url, output_dir="podcasts"):
+    def __init__(self, rss_url, user_agent, output_dir="podcasts"):
         self.rss_url = rss_url
         self.output_dir = output_dir
+        self.user_agent = user_agent
 
     def sanitize_filename(self, name):
         return re.sub(r'[\\/*?:"<>|]', "", name)
@@ -116,9 +117,7 @@ class PodcastDownloader:
     def download_file(self, url, dest_path):
         print(f"Downloading: {url}")
 
-        # Mimic wget's default user agent
-        user_agent = {"User-Agent": "Wget/1.25.0"}
-        req = Request(url, headers=user_agent)
+        req = Request(url, headers={"User-Agent": self.user_agent})
 
         try:
             with urlopen(req) as response:
@@ -220,8 +219,15 @@ if __name__ == "__main__":
         default="podcasts",
         help="Directory where MP3 files will be saved (default: podcasts)",
     )
+    parser.add_argument(
+        "--user-agent",
+        default="Wget/1.25.0",
+        help="Custom User-Agent header (default: Wget/1.25.0)",
+    )
 
     args = parser.parse_args()
 
-    downloader = PodcastDownloader(rss_url=args.rss_url, output_dir=args.output_dir)
+    downloader = PodcastDownloader(
+        rss_url=args.rss_url, user_agent=args.user_agent, output_dir=args.output_dir
+    )
     downloader.download()
