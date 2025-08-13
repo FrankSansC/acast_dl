@@ -188,9 +188,10 @@ class PodcastDownloader:
 
             filename = f"{self.sanitize_filename(metadata.get("title", ""))}.mp3"
             if filename == ".mp3":
-                if entry.acast_episodeid:
-                    print("No title found, use episode ID as filename")
-                    filename = f"{entry.acast_episodeid}.mp3"
+                guid = entry.get("guid", None)
+                if guid is not None:
+                    print("No title found, use GUID as filename")
+                    filename = f"{guid}.mp3"
                 else:
                     print("No title and no episodeId, skip this episode")
                     continue
