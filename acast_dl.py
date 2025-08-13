@@ -36,11 +36,11 @@ class CachedRSSFeed:
         with open(self.cache_file, "w") as f:
             json.dump(self.cache, f)
 
-    def fetch(self, url):
+    def fetch(self, url, user_agent):
         etag = self.cache.get(url, {}).get("etag")
         modified = self.cache.get(url, {}).get("modified")
 
-        feed = feedparser.parse(url, etag=etag, modified=modified)
+        feed = feedparser.parse(url, etag=etag, modified=modified, agent=user_agent)
 
         if feed.get("status") == 304:
             print("Feed not modified")
@@ -156,7 +156,7 @@ class PodcastDownloader:
 
     def download(self):
         rss = CachedRSSFeed()
-        feed = rss.fetch(self.rss_url)
+        feed = rss.fetch(self.rss_url, self.user_agent)
 
         if feed is None:
             print("No new episodes.")
